@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>Batalha de Balões — EJR Robótica</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; background: #06061a; }
+    body { font-family: 'Nunito', sans-serif; color: #eee; -webkit-tap-highlight-color: transparent; user-select: none; }
+
+    /* ═══ SCREENS ═══ */
+    .screen { position: absolute; inset: 0; display: flex; flex-direction: column; }
+    .hidden { display: none !important; }
+
+    /* ═══ CONFETTI ═══ */
+    #cf { position: fixed; inset: 0; pointer-events: none; z-index: 200; overflow: hidden; }
+    .cf-p { position: absolute; top: -14px; border-radius: 3px; animation: cfFall linear forwards; }
+    @keyframes cfFall { to { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+
+    /* ════════════════════════════════════════
+       START SCREEN
+    ════════════════════════════════════════ */
+    #ss {
+      background: radial-gradient(ellipse at 30% 30%, #1a0a3a 0%, #06061a 60%);
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      padding: 20px 16px;
+      overflow-y: auto;
+    }
+
+    .ss-logo {
+      font-size: clamp(52px, 15vw, 80px);
+      animation: float 3s ease-in-out infinite;
+      margin-bottom: 4px;
+    }
+
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-10px); }
+    }
+
+    .ss-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(26px, 7vw, 42px);
+      background: linear-gradient(135deg, #00d4ff, #ff4dff, #ffdd00);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-align: center;
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+
+    .ss-sub {
+      font-size: clamp(11px, 2.5vw, 13px);
+      color: #8888cc;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 24px;
+    }
+
+    .ss-card {
+      background: rgba(255,255,255,0.05);
+      border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 18px;
+      padding: 16px;
+      width: 100%;
+      max-width: 340px;
+      margin-bottom: 12px;
+    }
+
+    .ss-card-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 13px;
+      color: #8888cc;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .ss-diff-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-diff {
+      flex: 1;
+      padding: 10px 6px;
+      border: 2px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.04);
+      color: #aaa;
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(12px, 3vw, 15px);
+      cursor: pointer;
+      transition: all 0.15s;
+      touch-action: manipulation;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .btn-diff .d-icon { font-size: 18px; }
+    .btn-diff.active {
+      border-color: #00d4ff;
+      background: rgba(0,212,255,0.12);
+      color: #00d4ff;
+      box-shadow: 0 0 12px rgba(0,212,255,0.25);
+    }
+
+    .ss-rules {
+      width: 100%;
+      max-width: 340px;
+      margin-bottom: 20px;
+    }
+
+    .ss-rules-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 14px;
+      color: #ffdd00;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .rule-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #aaaacc;
+      margin-bottom: 5px;
+      line-height: 1.4;
+    }
+
+    .rule-icon { font-size: 16px; flex-shrink: 0; }
+
+    .btn-start {
+      background: linear-gradient(135deg, #00bb55, #00882e);
+      border: none;
+      border-radius: 18px;
+      padding: 16px 48px;
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(20px, 5vw, 26px);
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 6px 0 #005522, 0 0 30px rgba(0,187,85,0.4);
+      transition: transform 0.1s, box-shadow 0.1s;
+      touch-action: manipulation;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-start:active { transform: translateY(4px); box-shadow: 0 2px 0 #005522; }
+
+    /* ════════════════════════════════════════
+       GAME SCREEN
+    ════════════════════════════════════════ */
+    #sg {
+      background: #06061a;
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+    }
+
+    /* ── HEADER ── */
+    .game-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      background: rgba(0,0,0,0.5);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+      gap: 8px;
+    }
+
+    .player-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .player-name {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(11px, 2.5vw, 14px);
+      letter-spacing: 0.3px;
+    }
+
+    .player-name.p1  { color: #00d4ff; }
+    .player-name.bot { color: #ff4d4d; }
+
+    .player-score {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(18px, 4.5vw, 24px);
+      line-height: 1;
+    }
+
+    .player-score.p1  { color: #00d4ff; }
+    .player-score.bot { color: #ff4d4d; }
+
+    .player-balloons {
+      display: flex;
+      gap: 3px;
+      margin-top: 1px;
+    }
+
+    .balloon-icon { font-size: clamp(12px, 3vw, 16px); transition: all 0.3s; }
+    .balloon-icon.popped { opacity: 0.15; filter: grayscale(1); }
+
+    .round-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .round-label {
+      font-family: 'Fredoka One', cursive;
+      font-size: 9px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .round-num {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(20px, 5vw, 26px);
+      color: #ffdd00;
+      line-height: 1;
+    }
+
+    /* ── ARENA ── */
+    .arena-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+      position: relative;
+      padding: 4px;
+    }
+
+    #arena { display: block; border-radius: 8px; }
+
+    /* ── STATUS ── */
+    .status-bar {
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(12px, 3vw, 15px);
+      text-align: center;
+      padding: 0 12px;
+      flex-shrink: 0;
+      transition: color 0.3s, background 0.3s;
+      letter-spacing: 0.3px;
+    }
+
+    .status-bar.neutral  { color: #8888cc; background: rgba(0,0,0,0.3); }
+    .status-bar.running  { color: #00d4ff; background: rgba(0,50,80,0.5); }
+    .status-bar.success  { color: #00ff88; background: rgba(0,40,20,0.5); }
+    .status-bar.danger   { color: #ff4d4d; background: rgba(50,0,0,0.5); }
+    .status-bar.warn     { color: #ffdd00; background: rgba(40,30,0,0.5); }
+
+    /* ── PROGRAMMING PANEL ── */
+    .prog-panel {
+      flex-shrink: 0;
+      background: rgba(0,0,0,0.5);
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding: 8px 10px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    /* 5 command buttons in a row */
+    .cmd-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .cmd-btn {
+      flex: 1;
+      height: 50px;
+      border: none;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Fredoka One', cursive;
+      cursor: pointer;
+      transition: transform 0.08s, box-shadow 0.08s, filter 0.15s;
+      touch-action: manipulation;
+      gap: 1px;
+    }
+
+    .cmd-btn .c-icon { font-size: clamp(16px, 4vw, 22px); line-height: 1; }
+    .cmd-btn .c-lbl  { font-size: clamp(8px, 1.8vw, 10px); letter-spacing: 0.2px; opacity: 0.9; }
+
+    .cmd-btn:active { transform: translateY(3px); }
+    .cmd-btn:disabled { filter: opacity(0.3) grayscale(0.8); cursor: not-allowed; pointer-events: none; }
+
+    .cmd-btn.cf { background: #0066aa; color: #fff; box-shadow: 0 4px 0 #003366, 0 0 10px rgba(0,180,255,0.3); }
+    .cmd-btn.cb { background: #aa5500; color: #fff; box-shadow: 0 4px 0 #663300, 0 0 10px rgba(255,120,0,0.3); }
+    .cmd-btn.cl { background: #7722aa; color: #fff; box-shadow: 0 4px 0 #440066, 0 0 10px rgba(180,50,255,0.3); }
+    .cmd-btn.cr { background: #006633; color: #fff; box-shadow: 0 4px 0 #003316, 0 0 10px rgba(0,200,100,0.3); }
+    .cmd-btn.cw { background: #333355; color: #aaa; box-shadow: 0 4px 0 #111133; }
+
+    /* queue */
+    .queue-area {
+      display: flex;
+      gap: 5px;
+      min-height: 38px;
+      align-items: center;
+      background: rgba(255,255,255,0.04);
+      border: 1.5px dashed rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 5px 8px;
+      overflow-x: auto;
+      flex-wrap: nowrap;
+    }
+
+    .q-empty {
+      color: #555577;
+      font-size: 12px;
+      font-weight: 800;
+      width: 100%;
+      text-align: center;
+    }
+
+    .q-chip {
+      flex-shrink: 0;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 900;
+      color: #fff;
+      transition: transform 0.15s, outline 0.1s;
+    }
+
+    .q-chip.qf { background: #0066aa; }
+    .q-chip.qb { background: #aa5500; }
+    .q-chip.ql { background: #7722aa; }
+    .q-chip.qr { background: #006633; }
+    .q-chip.qw { background: #333355; color: #888; }
+    .q-chip.q-active { outline: 2.5px solid #ffdd00; transform: scale(1.25); }
+    .q-chip.q-done   { filter: brightness(0.4); }
+
+    /* action row */
+    .action-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-undo, .btn-clear {
+      flex: 1;
+      padding: 8px 4px;
+      border: 1.5px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.05);
+      color: #aaa;
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(11px, 2.5vw, 13px);
+      cursor: pointer;
+      transition: background 0.12s;
+      touch-action: manipulation;
+    }
+
+    .btn-undo:hover, .btn-clear:hover { background: rgba(255,255,255,0.1); }
+    .btn-undo:disabled, .btn-clear:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .btn-exec {
+      flex: 2.5;
+      padding: 9px 8px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #00aa44, #007730);
+      color: #fff;
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(14px, 3.5vw, 17px);
+      cursor: pointer;
+      box-shadow: 0 4px 0 #004418, 0 0 14px rgba(0,200,80,0.3);
+      transition: transform 0.1s, box-shadow 0.1s;
+      touch-action: manipulation;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-exec:active { transform: translateY(3px); box-shadow: 0 1px 0 #004418; }
+    .btn-exec:disabled { background: #224433; color: #557755; box-shadow: none; cursor: not-allowed; }
+
+    /* ═════════════════════════════════════
+       GAME OVER OVERLAY
+    ═════════════════════════════════════ */
+    #go {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.82);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      backdrop-filter: blur(6px);
+      padding: 20px;
+    }
+
+    .go-card {
+      background: #0e0e2e;
+      border: 2px solid rgba(255,255,255,0.12);
+      border-radius: 24px;
+      padding: 32px 28px 24px;
+      text-align: center;
+      max-width: 320px;
+      width: 100%;
+      box-shadow: 0 0 60px rgba(0,0,0,0.6);
+      animation: popIn 0.45s cubic-bezier(0.175,0.885,0.32,1.275);
+    }
+
+    @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    .go-trophy { font-size: 60px; margin-bottom: 6px; }
+    .go-title  { font-family: 'Fredoka One', cursive; font-size: 30px; margin-bottom: 4px; }
+    .go-sub    { font-size: 14px; color: #8888cc; margin-bottom: 16px; }
+
+    .go-scores {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .go-score-box {
+      background: rgba(255,255,255,0.06);
+      border-radius: 14px;
+      padding: 10px 18px;
+    }
+
+    .go-score-name { font-size: 12px; font-weight: 800; color: #888; }
+    .go-score-val  { font-family: 'Fredoka One', cursive; font-size: 28px; }
+    .go-score-val.p1  { color: #00d4ff; }
+    .go-score-val.bot { color: #ff4d4d; }
+
+    .btn-replay {
+      background: linear-gradient(135deg, #00bb55, #00882e);
+      border: none;
+      border-radius: 14px;
+      padding: 13px 36px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 18px;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #005522;
+      transition: transform 0.1s;
+      touch-action: manipulation;
+    }
+
+    .btn-replay:active { transform: translateY(3px); box-shadow: 0 2px 0 #005522; }
+
+    /* ════════════════════════════════════
+       TABLET (≥ 700px)
+    ════════════════════════════════════ */
+    @media (min-width: 700px) {
+      #sg { flex-direction: column; }
+
+      .prog-panel {
+        flex-direction: row;
+        align-items: center;
+        padding: 8px 16px 10px;
+        gap: 12px;
+      }
+
+      .cmd-row { flex-wrap: wrap; max-width: 280px; }
+      .cmd-btn { height: 44px; flex: 0 0 calc(20% - 5px); }
+      .queue-area { flex: 1; min-width: 0; }
+      .action-row { flex-shrink: 0; flex-direction: column; gap: 5px; width: 130px; }
+    }
+
+    /* ════════════════════════════════════
+       VERY SMALL PHONES
+    ════════════════════════════════════ */
+    @media (max-width: 360px) {
+      .cmd-btn { height: 44px; }
+      .prog-panel { gap: 5px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── CONFETTI ─── -->
+<div id="cf"></div>
+
+<!-- ══════════════════════════════════════
+     START SCREEN
+══════════════════════════════════════ -->
+<div id="ss" class="screen">
+  <div class="ss-logo">🎈</div>
+  <div class="ss-title">Batalha<br>de Balões</div>
+  <div class="ss-sub">EJR Robótica Educacional</div>
+
+  <div class="ss-card">
+    <div class="ss-card-title">⚙️ Dificuldade do Bot</div>
+    <div class="ss-diff-row">
+      <button class="btn-diff" data-d="easy"   onclick="setDiff(this)"><span class="d-icon">🐢</span>Fácil</button>
+      <button class="btn-diff active" data-d="normal" onclick="setDiff(this)"><span class="d-icon">🤖</span>Normal</button>
+      <button class="btn-diff" data-d="hard"   onclick="setDiff(this)"><span class="d-icon">💀</span>Difícil</button>
+    </div>
+  </div>
+
+  <div class="ss-rules">
+    <div class="ss-rules-title">📖 Como Jogar</div>
+    <div class="rule-row"><span class="rule-icon">🎈</span><span>Cada robô tem <b>3 balões</b>. Estoure os do adversário para ganhar pontos!</span></div>
+    <div class="rule-row"><span class="rule-icon">🧩</span><span>Programme até <b>5 comandos</b> por rodada e clique em Executar.</span></div>
+    <div class="rule-row"><span class="rule-icon">💥</span><span>Mova seu robô para a posição do adversário para estourar um balão <b>(+15 pts)</b>.</span></div>
+    <div class="rule-row"><span class="rule-icon">⭐</span><span>Colete estrelas espalhadas pela arena <b>(+5 pts)</b> cada!</span></div>
+    <div class="rule-row"><span class="rule-icon">🏆</span><span>Vence quem <b>estourar todos os balões</b> adversários ou ter mais pontos!</span></div>
+  </div>
+
+  <button class="btn-start" onclick="startGame()">🚀 Começar!</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     GAME SCREEN
+══════════════════════════════════════ -->
+<div id="sg" class="screen hidden">
+
+  <!-- Header -->
+  <div class="game-header">
+    <div class="player-info">
+      <div class="player-name p1">🤖 Você</div>
+      <div class="player-score p1" id="score-p1">0</div>
+      <div class="player-balloons" id="balloons-p1"></div>
+    </div>
+    <div class="round-info">
+      <div class="round-label">Rodada</div>
+      <div class="round-num" id="round-num">1</div>
+    </div>
+    <div class="player-info">
+      <div class="player-name bot">Bot 🤖</div>
+      <div class="player-score bot" id="score-bot">0</div>
+      <div class="player-balloons" id="balloons-bot"></div>
+    </div>
+  </div>
+
+  <!-- Arena -->
+  <div class="arena-wrap">
+    <canvas id="arena"></canvas>
+  </div>
+
+  <!-- Status bar -->
+  <div class="status-bar neutral" id="status-bar">
+    Programme o seu robô! 🧩
+  </div>
+
+  <!-- Programming panel -->
+  <div class="prog-panel">
+
+    <!-- Command buttons -->
+    <div class="cmd-row">
+      <button class="cmd-btn cf" id="btn-F" onclick="addCmd('F')">
+        <span class="c-icon">⬆</span><span class="c-lbl">Frente</span>
+      </button>
+      <button class="cmd-btn cb" id="btn-B" onclick="addCmd('B')">
+        <span class="c-icon">⬇</span><span class="c-lbl">Trás</span>
+      </button>
+      <button class="cmd-btn cl" id="btn-L" onclick="addCmd('L')">
+        <span class="c-icon">⬅</span><span class="c-lbl">Esq.</span>
+      </button>
+      <button class="cmd-btn cr" id="btn-R" onclick="addCmd('R')">
+        <span class="c-icon">➡</span><span class="c-lbl">Dir.</span>
+      </button>
+      <button class="cmd-btn cw" id="btn-W" onclick="addCmd('W')">
+        <span class="c-icon">⏸</span><span class="c-lbl">Esperar</span>
+      </button>
+    </div>
+
+    <!-- Queue display -->
+    <div class="queue-area" id="queue">
+      <div class="q-empty" id="q-empty">Adicione comandos acima!</div>
+    </div>
+
+    <!-- Action row -->
+    <div class="action-row">
+      <button class="btn-undo"  id="btn-undo"  onclick="undoCmd()">↩ Desfazer</button>
+      <button class="btn-clear" id="btn-clear" onclick="clearCmds()">🗑 Limpar</button>
+      <button class="btn-exec"  id="btn-exec"  onclick="executeProg()">▶ Executar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     GAME OVER OVERLAY
+══════════════════════════════════════ -->
+<div id="go" class="hidden">
+  <div class="go-card">
+    <div class="go-trophy" id="go-trophy">🏆</div>
+    <div class="go-title"  id="go-title">Parabéns!</div>
+    <div class="go-sub"    id="go-sub">Partida encerrada</div>
+    <div class="go-scores">
+      <div class="go-score-box">
+        <div class="go-score-name">🤖 VOCÊ</div>
+        <div class="go-score-val p1" id="go-score-p1">0</div>
+      </div>
+      <div class="go-score-box">
+        <div class="go-score-name">BOT 🤖</div>
+        <div class="go-score-val bot" id="go-score-bot">0</div>
+      </div>
+    </div>
+    <button class="btn-replay" onclick="backToStart()">Jogar de Novo 🔄</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════════════════════════════════
+const GRID     = 8;
+const MAX_CMDS = 5;
+const POP_PTS  = 15;
+const STAR_PTS = 5;
+const NUM_STARS = 4;
+const STEP_MS  = 480;     // ms per execution step
+
+// Directions: 0=N(up), 1=E(right), 2=S(down), 3=W(left)
+const DR = [-1, 0, 1, 0];
+const DC = [ 0, 1, 0,-1];
+
+const CMD_COLOR_CLASS = { F:'qf', B:'qb', L:'ql', R:'qr', W:'qw' };
+const CMD_ICONS       = { F:'⬆', B:'⬇', L:'⬅', R:'➡', W:'⏸' };
+const CMD_LABELS      = { F:'Frente', B:'Trás', L:'Esq.', R:'Dir.', W:'Espera' };
+
+// Balloon colors per slot
+const P1_BAL_COLS  = ['#00ccff','#0088ff','#44ffcc'];
+const BOT_BAL_COLS = ['#ff4444','#ff8800','#ffdd00'];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════════════════════════════════════════
+const S = {
+  phase: 'start',  // 'start'|'programming'|'executing'|'gameover'
+  round: 1,
+  difficulty: 'normal',
+  p1:  { row:6, col:1, dir:0, balloons:3, score:0, cmds:[] },
+  bot: { row:1, col:6, dir:2, balloons:3, score:0 },
+  stars: [],       // [{row,col}]
+  effects: [],     // floating texts & pop bursts
+};
+
+// Visual (smoothly interpolated)
+const V = {
+  p1:  { x:0, y:0, ang: -90 },
+  bot: { x:0, y:0, ang:  90 },
+  shakeP1: 0, shakeBot: 0,
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CANVAS
+// ═══════════════════════════════════════════════════════════════════════════
+const canvas = document.getElementById('arena');
+const ctx    = canvas.getContext('2d');
+let CELL = 52;
+
+function setupCanvas() {
+  const wrap = document.querySelector('.arena-wrap');
+  const W = wrap.clientWidth  - 8;
+  const H = wrap.clientHeight - 8;
+  CELL = Math.floor(Math.min(W, H) / GRID);
+  const size = CELL * GRID;
+  canvas.width  = size;
+  canvas.height = size;
+}
+
+function logicalToPixel(row, col) {
+  return { x: col * CELL + CELL / 2, y: row * CELL + CELL / 2 };
+}
+
+// Direction → canvas angle (robot body drawn facing right at 0°)
+// dir 0(N)=-90°, dir 1(E)=0°, dir 2(S)=90°, dir 3(W)=180°
+function dirToAngle(dir) { return dir * 90 - 90; }
+
+function lerpVal(a, b, t) { return a + (b - a) * t; }
+
+function lerpAngle(cur, tgt) {
+  let d = ((tgt - cur) % 360 + 360) % 360;
+  if (d > 180) d -= 360;
+  return cur + d * 0.18;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// INIT & RESET
+// ═══════════════════════════════════════════════════════════════════════════
+function startGame() {
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; lastRaf = null; }
+  document.getElementById('ss').classList.add('hidden');
+  document.getElementById('sg').classList.remove('hidden');
+  document.getElementById('go').classList.add('hidden');
+
+  S.round = 1;
+  S.p1  = { row:6, col:1, dir:0, balloons:3, score:0, cmds:[] };
+  S.bot = { row:1, col:6, dir:2, balloons:3, score:0 };
+  S.effects = [];
+
+  setupCanvas();
+  placeStars();
+
+  // Sync visual positions immediately (no lerp on start)
+  syncVisualImmediate();
+
+  updateHeader();
+  setStatus('neutral', '🧩 Programme o seu robô e clique Executar!');
+  setPhase('programming');
+  renderLoop();
+}
+
+function syncVisualImmediate() {
+  const p1px  = logicalToPixel(S.p1.row, S.p1.col);
+  const botpx = logicalToPixel(S.bot.row, S.bot.col);
+  V.p1.x = p1px.x;   V.p1.y = p1px.y;   V.p1.ang = dirToAngle(S.p1.dir);
+  V.bot.x = botpx.x; V.bot.y = botpx.y; V.bot.ang = dirToAngle(S.bot.dir);
+}
+
+function placeStars() {
+  S.stars = [];
+  const forbidden = [
+    { r: S.p1.row,  c: S.p1.col  },
+    { r: S.bot.row, c: S.bot.col },
+  ];
+  let attempts = 0;
+  while (S.stars.length < NUM_STARS && attempts < 200) {
+    attempts++;
+    const r = Math.floor(Math.random() * GRID);
+    const c = Math.floor(Math.random() * GRID);
+    const blocked = forbidden.some(p => p.r === r && p.c === c) ||
+                    S.stars.some(s => s.row === r && s.col === c);
+    if (!blocked) S.stars.push({ row: r, col: c });
+  }
+}
+
+function backToStart() {
+  document.getElementById('go').classList.add('hidden');
+  document.getElementById('sg').classList.add('hidden');
+  document.getElementById('ss').classList.remove('hidden');
+  S.phase = 'start';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PHASE MANAGEMENT
+// ═══════════════════════════════════════════════════════════════════════════
+function setPhase(phase) {
+  S.phase = phase;
+  const prog = phase === 'programming';
+  ['btn-F','btn-B','btn-L','btn-R','btn-W'].forEach(id =>
+    document.getElementById(id).disabled = !prog
+  );
+  document.getElementById('btn-exec').disabled  = !prog || S.p1.cmds.length === 0;
+  document.getElementById('btn-undo').disabled  = !prog || S.p1.cmds.length === 0;
+  document.getElementById('btn-clear').disabled = !prog || S.p1.cmds.length === 0;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COMMANDS
+// ═══════════════════════════════════════════════════════════════════════════
+function addCmd(cmd) {
+  if (S.phase !== 'programming') return;
+  if (S.p1.cmds.length >= MAX_CMDS) {
+    setStatus('warn', `⚠️ Máximo de ${MAX_CMDS} comandos por rodada!`);
+    return;
+  }
+  S.p1.cmds.push(cmd);
+  renderQueue();
+  setPhase('programming');
+  setStatus('neutral', `${CMD_ICONS[cmd]} ${CMD_LABELS[cmd]} adicionado — ${S.p1.cmds.length}/${MAX_CMDS} comandos`);
+}
+
+function undoCmd() {
+  if (S.phase !== 'programming') return;
+  S.p1.cmds.pop();
+  renderQueue();
+  setPhase('programming');
+  setStatus('neutral', S.p1.cmds.length === 0
+    ? 'Sequência vazia. Adicione comandos!'
+    : `Último comando removido — ${S.p1.cmds.length} restante(s)`);
+}
+
+function clearCmds() {
+  if (S.phase !== 'programming') return;
+  S.p1.cmds = [];
+  renderQueue();
+  setPhase('programming');
+  setStatus('neutral', 'Sequência apagada. Comece de novo! 🧩');
+}
+
+function renderQueue() {
+  const area  = document.getElementById('queue');
+  const empty = document.getElementById('q-empty');
+  area.querySelectorAll('.q-chip').forEach(c => c.remove());
+  empty.style.display = S.p1.cmds.length === 0 ? 'block' : 'none';
+  S.p1.cmds.forEach((cmd, i) => {
+    const chip = document.createElement('div');
+    chip.className = `q-chip ${CMD_COLOR_CLASS[cmd]}`;
+    chip.id = `qc-${i}`;
+    chip.textContent = CMD_ICONS[cmd];
+    chip.title = CMD_LABELS[cmd];
+    area.appendChild(chip);
+  });
+}
+
+function highlightQueueStep(stepIdx) {
+  document.querySelectorAll('.q-chip').forEach((c, i) => {
+    c.classList.remove('q-active', 'q-done');
+    if (i < stepIdx) c.classList.add('q-done');
+    if (i === stepIdx) c.classList.add('q-active');
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BOT AI
+// ═══════════════════════════════════════════════════════════════════════════
+function computeBotCmds() {
+  const diff = S.difficulty;
+  const strategicChance = diff === 'easy' ? 0.45 : diff === 'hard' ? 0.88 : 0.70;
+  const cmds = [];
+  let sim = { row: S.bot.row, col: S.bot.col, dir: S.bot.dir };
+
+  for (let i = 0; i < MAX_CMDS; i++) {
+    let cmd;
+
+    if (Math.random() < strategicChance) {
+      // Strategic: approach player or attack
+      const targetRow = S.p1.row;
+      const targetCol = S.p1.col;
+      const dr = targetRow - sim.row;
+      const dc = targetCol - sim.col;
+      const dist = Math.abs(dr) + Math.abs(dc);
+
+      if (dist === 1) {
+        // Adjacent! Face and attack
+        const attackDir = getDirectionTo(sim.row, sim.col, targetRow, targetCol);
+        if (sim.dir === attackDir) cmd = 'F';
+        else cmd = turnToward(sim.dir, attackDir);
+      } else if (diff === 'hard' && S.stars.length > 0) {
+        // Hard mode: also consider picking up stars
+        const nearest = nearestStar(sim.row, sim.col);
+        const starDist = Math.abs(nearest.row - sim.row) + Math.abs(nearest.col - sim.col);
+        const playerDist = dist;
+        // Go for star only if it's closer and player is far
+        if (starDist < playerDist - 1) {
+          const starDir = getDirectionTo(sim.row, sim.col, nearest.row, nearest.col);
+          cmd = sim.dir === starDir ? 'F' : turnToward(sim.dir, starDir);
+        } else {
+          const desiredDir = getDirectionTo(sim.row, sim.col, targetRow, targetCol);
+          cmd = sim.dir === desiredDir ? 'F' : turnToward(sim.dir, desiredDir);
+        }
+      } else {
+        // Move toward player
+        const desiredDir = getDirectionTo(sim.row, sim.col, targetRow, targetCol);
+        cmd = sim.dir === desiredDir ? 'F' : turnToward(sim.dir, desiredDir);
+      }
+    } else {
+      // Random command
+      cmd = ['F','F','B','L','R','W'][Math.floor(Math.random() * 6)];
+    }
+
+    // Simulate cmd & validate bounds
+    const next = applyCmd(sim.row, sim.col, sim.dir, cmd);
+    if (next.row >= 0 && next.row < GRID && next.col >= 0 && next.col < GRID) {
+      sim = next;
+    } else {
+      cmd = 'W'; // stay put instead of going out of bounds
+    }
+
+    cmds.push(cmd);
+  }
+  return cmds;
+}
+
+function getDirectionTo(fromR, fromC, toR, toC) {
+  const dr = toR - fromR;
+  const dc = toC - fromC;
+  if (Math.abs(dr) >= Math.abs(dc)) return dr > 0 ? 2 : 0;
+  return dc > 0 ? 1 : 3;
+}
+
+function turnToward(cur, desired) {
+  const diff = ((desired - cur) % 4 + 4) % 4;
+  if (diff === 1) return 'R';
+  if (diff === 3) return 'L';
+  return Math.random() < 0.5 ? 'L' : 'R'; // 180° → pick a side
+}
+
+function nearestStar(row, col) {
+  let best = S.stars[0], bestD = Infinity;
+  S.stars.forEach(s => {
+    const d = Math.abs(s.row - row) + Math.abs(s.col - col);
+    if (d < bestD) { bestD = d; best = s; }
+  });
+  return best;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MOVEMENT / PHYSICS
+// ═══════════════════════════════════════════════════════════════════════════
+function applyCmd(row, col, dir, cmd) {
+  switch (cmd) {
+    case 'F': return { row: row + DR[dir],          col: col + DC[dir],          dir };
+    case 'B': return { row: row + DR[(dir+2)%4],    col: col + DC[(dir+2)%4],    dir };
+    case 'L': return { row, col, dir: (dir + 3) % 4 };
+    case 'R': return { row, col, dir: (dir + 1) % 4 };
+    case 'W': return { row, col, dir };
+  }
+}
+
+function clampPos(pos) {
+  pos.row = Math.max(0, Math.min(GRID - 1, pos.row));
+  pos.col = Math.max(0, Math.min(GRID - 1, pos.col));
+  return pos;
+}
+
+// Resolve one simultaneous step; returns events
+//
+// LÓGICA: ataques verificados contra posições ATUAIS (pré-movimento)
+// • p1Attacks: p1 vai para célula atual do bot → estoura balão do bot
+// • botAttacks: bot vai para célula atual do p1 → estoura balão do p1
+// • headOn: ambos vão para mesma célula VAZIA → bounce sem estourar
+function resolveStep(p1cmd, botcmd) {
+  const p1n  = clampPos(applyCmd(S.p1.row,  S.p1.col,  S.p1.dir,  p1cmd));
+  const botn = clampPos(applyCmd(S.bot.row, S.bot.col, S.bot.dir, botcmd));
+
+  const events = { p1PopBot: false, botPopP1: false, p1Stars: [], botStars: [] };
+
+  const p1Attacks  = (p1n.row  === S.bot.row && p1n.col  === S.bot.col);
+  const botAttacks = (botn.row === S.p1.row  && botn.col === S.p1.col);
+
+  // Head-on: ambos vão para a mesma célula vazia
+  if (!p1Attacks && !botAttacks && p1n.row === botn.row && p1n.col === botn.col) {
+    S.p1.dir  = p1n.dir;
+    S.bot.dir = botn.dir;
+    return events;
+  }
+
+  if (p1Attacks) {
+    events.p1PopBot = true;
+    S.p1.dir = p1n.dir;
+  } else {
+    S.p1.row = p1n.row; S.p1.col = p1n.col; S.p1.dir = p1n.dir;
+  }
+
+  if (botAttacks) {
+    events.botPopP1 = true;
+    S.bot.dir = botn.dir;
+  } else {
+    S.bot.row = botn.row; S.bot.col = botn.col; S.bot.dir = botn.dir;
+  }
+
+  // Coleta de estrelas (posições já finais)
+  S.stars = S.stars.filter(s => {
+    if (s.row === S.p1.row  && s.col === S.p1.col)  { events.p1Stars.push(s);  return false; }
+    if (s.row === S.bot.row && s.col === S.bot.col) { events.botStars.push(s); return false; }
+    return true;
+  });
+
+  return events;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EXECUTE PROGRAM (async)
+// ═══════════════════════════════════════════════════════════════════════════
+async function executeProg() {
+  if (S.phase !== 'programming') return;
+  if (S.p1.cmds.length === 0) { setStatus('warn', '⚠️ Adicione pelo menos um comando!'); return; }
+
+  setPhase('executing');
+  S.effects = [];
+
+  const botCmds = computeBotCmds();
+  const p1Cmds  = [...S.p1.cmds];
+  // Pad to MAX_CMDS with 'W'
+  while (p1Cmds.length  < MAX_CMDS) p1Cmds.push('W');
+  while (botCmds.length < MAX_CMDS) botCmds.push('W');
+
+  setStatus('running', '▶ Executando programa...');
+
+  for (let i = 0; i < MAX_CMDS; i++) {
+    highlightQueueStep(i);
+    setStatus('running', `▶ Passo ${i+1}/${MAX_CMDS}: ${CMD_ICONS[p1Cmds[i]]} ${CMD_LABELS[p1Cmds[i]]} | Bot: ${CMD_ICONS[botCmds[i]]} ${CMD_LABELS[botCmds[i]]}`);
+
+    const events = resolveStep(p1Cmds[i], botCmds[i]);
+
+    // Apply score & balloon events
+    if (events.p1PopBot) {
+      S.bot.balloons = Math.max(0, S.bot.balloons - 1);
+      S.p1.score += POP_PTS;
+      addEffect(V.bot.x, V.bot.y - CELL * 0.6, `💥 +${POP_PTS}`, '#ff4d4d', true);
+      V.shakeBot = 8;
+    }
+    if (events.botPopP1) {
+      S.p1.balloons = Math.max(0, S.p1.balloons - 1);
+      S.bot.score += POP_PTS;
+      addEffect(V.p1.x, V.p1.y - CELL * 0.6, `💥 +${POP_PTS}`, '#ff4d4d', true);
+      V.shakeP1 = 8;
+    }
+    events.p1Stars.forEach(s => {
+      S.p1.score += STAR_PTS;
+      const px = logicalToPixel(s.row, s.col);
+      addEffect(px.x, px.y, `⭐ +${STAR_PTS}`, '#ffdd00');
+    });
+    events.botStars.forEach(s => {
+      S.bot.score += STAR_PTS;
+      const px = logicalToPixel(s.row, s.col);
+      addEffect(px.x, px.y, `⭐ +${STAR_PTS}`, '#ffdd00');
+    });
+
+    updateHeader();
+
+    await sleep(STEP_MS);
+
+    // Check game over after each step
+    if (S.p1.balloons === 0 || S.bot.balloons === 0) break;
+  }
+
+  // Highlight all done
+  document.querySelectorAll('.q-chip').forEach(c => {
+    c.classList.remove('q-active');
+    c.classList.add('q-done');
+  });
+
+  // Respawn stars occasionally
+  if (S.stars.length < 2) placeStars();
+  else if (S.stars.length < NUM_STARS && Math.random() < 0.5) {
+    // Add a couple stars
+    const cur = S.stars.length;
+    placeStars();
+    S.stars = S.stars.slice(0, cur + 2);
+  }
+
+  S.round++;
+  document.getElementById('round-num').textContent = S.round;
+
+  await sleep(300);
+
+  // Check game over
+  if (S.p1.balloons === 0 || S.bot.balloons === 0) {
+    showGameOver();
+    return;
+  }
+
+  // New round
+  S.p1.cmds = [];
+  renderQueue();
+  setPhase('programming');
+
+  if (S.p1.score > S.bot.score) setStatus('success', `🟢 Você está na frente! ${S.p1.score} × ${S.bot.score} — Continue!`);
+  else if (S.bot.score > S.p1.score) setStatus('danger', `🔴 Bot na frente! ${S.bot.score} × ${S.p1.score} — Reaja!`);
+  else setStatus('neutral', `🎈 Placar empatado ${S.p1.score} × ${S.bot.score} — Próxima rodada!`);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// GAME OVER
+// ═══════════════════════════════════════════════════════════════════════════
+function showGameOver() {
+  const p1Win  = S.p1.balloons > 0 && S.bot.balloons === 0;
+  const botWin = S.bot.balloons > 0 && S.p1.balloons === 0;
+  const tie    = S.p1.score === S.bot.score;
+
+  document.getElementById('go-score-p1').textContent  = S.p1.score;
+  document.getElementById('go-score-bot').textContent = S.bot.score;
+
+  if (p1Win || (!botWin && S.p1.score > S.bot.score)) {
+    document.getElementById('go-trophy').textContent = '🏆';
+    document.getElementById('go-title').textContent  = 'Você venceu!';
+    document.getElementById('go-title').style.color  = '#00d4ff';
+    document.getElementById('go-sub').textContent    = 'Parabéns! Seus balões sobreviveram!';
+    launchConfetti();
+  } else if (botWin || S.bot.score > S.p1.score) {
+    document.getElementById('go-trophy').textContent = '🤖';
+    document.getElementById('go-title').textContent  = 'Bot venceu!';
+    document.getElementById('go-title').style.color  = '#ff4d4d';
+    document.getElementById('go-sub').textContent    = 'Não desanime! Tente novamente!';
+  } else {
+    document.getElementById('go-trophy').textContent = '🤝';
+    document.getElementById('go-title').textContent  = 'Empate!';
+    document.getElementById('go-title').style.color  = '#ffdd00';
+    document.getElementById('go-sub').textContent    = 'Que equilíbrio! Revanche?';
+  }
+
+  S.phase = 'gameover';
+  document.getElementById('go').classList.remove('hidden');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EFFECTS
+// ═══════════════════════════════════════════════════════════════════════════
+function addEffect(x, y, text, color, big = false) {
+  S.effects.push({ x, y, text, color, alpha: 1, vy: -0.9, ttl: 90, big });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// UI HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
+function updateHeader() {
+  document.getElementById('score-p1').textContent  = S.p1.score;
+  document.getElementById('score-bot').textContent = S.bot.score;
+
+  function renderBalloons(elId, count, hue) {
+    const el = document.getElementById(elId);
+    el.innerHTML = '';
+    for (let i = 0; i < 3; i++) {
+      const ic = document.createElement('span');
+      ic.className = 'balloon-icon' + (i >= count ? ' popped' : '');
+      ic.textContent = '🎈';
+      if (i < count && hue) ic.style.filter = `hue-rotate(${hue}deg)`;
+      el.appendChild(ic);
+    }
+  }
+
+  renderBalloons('balloons-p1',  S.p1.balloons,  180); // blue tint
+  renderBalloons('balloons-bot', S.bot.balloons,   0); // natural red
+}
+
+function setStatus(type, msg) {
+  const bar = document.getElementById('status-bar');
+  bar.className = `status-bar ${type}`;
+  bar.textContent = msg;
+}
+
+function setDiff(btn) {
+  document.querySelectorAll('.btn-diff').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  S.difficulty = btn.dataset.d;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDERING
+// ═══════════════════════════════════════════════════════════════════════════
+let rafId = null;
+let lastRaf = null;
+
+function renderLoop(ts) {
+  if (!ts) ts = performance.now();
+  if (!lastRaf) lastRaf = ts;
+  lastRaf = ts;
+
+  if (S.phase === 'start') { rafId = null; return; } // stop loop when back to start
+
+  // Lerp visual state toward logical state
+  const tP1  = logicalToPixel(S.p1.row,  S.p1.col);
+  const tBot = logicalToPixel(S.bot.row, S.bot.col);
+  V.p1.x  = lerpVal(V.p1.x,  tP1.x,  0.18);
+  V.p1.y  = lerpVal(V.p1.y,  tP1.y,  0.18);
+  V.bot.x = lerpVal(V.bot.x, tBot.x, 0.18);
+  V.bot.y = lerpVal(V.bot.y, tBot.y, 0.18);
+  V.p1.ang  = lerpAngle(V.p1.ang,  dirToAngle(S.p1.dir));
+  V.bot.ang = lerpAngle(V.bot.ang, dirToAngle(S.bot.dir));
+  V.shakeP1  = V.shakeP1  > 0.1 ? V.shakeP1  * 0.78 : 0;
+  V.shakeBot = V.shakeBot > 0.1 ? V.shakeBot * 0.78 : 0;
+
+  // Tick effects
+  S.effects = S.effects.filter(e => e.ttl > 0);
+  S.effects.forEach(e => { e.y += e.vy; e.alpha -= 1 / 90; e.ttl--; });
+
+  render();
+  rafId = requestAnimationFrame(renderLoop);
+}
+
+function render() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawArena();
+  drawStars();
+  drawRobot(V.bot.x + (Math.random() < 0.5 ? V.shakeBot : -V.shakeBot) * 0.7,
+            V.bot.y,  V.bot.ang,  false, S.bot.balloons);
+  drawRobot(V.p1.x  + (Math.random() < 0.5 ? V.shakeP1  : -V.shakeP1)  * 0.7,
+            V.p1.y,  V.p1.ang,   true,  S.p1.balloons);
+  drawEffects();
+}
+
+function drawArena() {
+  const sz = canvas.width;
+
+  // Dark background
+  ctx.fillStyle = '#0a0a1e';
+  ctx.fillRect(0, 0, sz, sz);
+
+  // Grid cells (alternating dark shades)
+  for (let r = 0; r < GRID; r++) {
+    for (let c = 0; c < GRID; c++) {
+      const x = c * CELL, y = r * CELL;
+      ctx.fillStyle = (r + c) % 2 === 0 ? '#0e0e28' : '#0c0c22';
+      ctx.fillRect(x, y, CELL, CELL);
+    }
+  }
+
+  // Grid lines (neon glow)
+  ctx.strokeStyle = 'rgba(80,80,160,0.35)';
+  ctx.lineWidth = 0.8;
+  for (let i = 0; i <= GRID; i++) {
+    ctx.beginPath();
+    ctx.moveTo(i * CELL, 0); ctx.lineTo(i * CELL, sz);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, i * CELL); ctx.lineTo(sz, i * CELL);
+    ctx.stroke();
+  }
+
+  // Corner dots
+  ctx.fillStyle = 'rgba(0,212,255,0.2)';
+  [[0,0],[0,sz],[sz,0],[sz,sz]].forEach(([x,y]) => {
+    ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI*2); ctx.fill();
+  });
+
+  // Arena border glow
+  ctx.strokeStyle = 'rgba(0,212,255,0.6)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(1, 1, sz - 2, sz - 2);
+}
+
+function drawStars() {
+  S.stars.forEach(s => {
+    const x = s.col * CELL + CELL / 2;
+    const y = s.row * CELL + CELL / 2;
+    const r = CELL * 0.22;
+    const t = Date.now() / 800;
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(t + s.col * 0.5); // gentle spin
+    ctx.shadowColor = '#ffdd00';
+    ctx.shadowBlur  = 14;
+
+    // 5-pointed star
+    ctx.beginPath();
+    for (let i = 0; i < 10; i++) {
+      const radius = i % 2 === 0 ? r : r * 0.42;
+      const angle  = (i * Math.PI) / 5 - Math.PI / 2;
+      ctx.lineTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+    }
+    ctx.closePath();
+    ctx.fillStyle = '#ffee44';
+    ctx.fill();
+    ctx.strokeStyle = '#ffaa00';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.restore();
+  });
+}
+
+function drawRobot(x, y, ang, isP1, balloons) {
+  const col = isP1 ? '#00aaff' : '#ff3333';
+  const col2 = isP1 ? '#0066cc' : '#cc0000';
+  const colGlow = isP1 ? 'rgba(0,170,255,0.5)' : 'rgba(255,50,50,0.5)';
+  const balCols = isP1 ? P1_BAL_COLS : BOT_BAL_COLS;
+
+  // ── Draw balloons (screen-space, above robot) ──
+  const balR = CELL * 0.13;
+  const spacing = balR * 2.8;
+  const balBaseX = x - spacing;
+  const balBaseY = y - CELL * 0.60;
+
+  for (let i = 0; i < 3; i++) {
+    const bx = balBaseX + i * spacing;
+    const by = balBaseY + Math.sin(Date.now() / 600 + i * 1.2) * 2;
+    const alive = i < balloons;
+
+    if (alive) {
+      // String
+      ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      ctx.moveTo(bx, y - CELL * 0.22);
+      ctx.quadraticCurveTo(bx + (i - 1) * 2, by + balR * 3, bx, by + balR);
+      ctx.stroke();
+
+      // Balloon body
+      ctx.save();
+      ctx.shadowColor = balCols[i];
+      ctx.shadowBlur  = 8;
+      const grd = ctx.createRadialGradient(bx - balR * 0.32, by - balR * 0.35, balR * 0.05, bx, by, balR);
+      grd.addColorStop(0, lightenColor(balCols[i], 60));
+      grd.addColorStop(0.6, balCols[i]);
+      grd.addColorStop(1, darkenColor(balCols[i], 40));
+      ctx.beginPath();
+      ctx.arc(bx, by, balR, 0, Math.PI * 2);
+      ctx.fillStyle = grd;
+      ctx.fill();
+      ctx.restore();
+
+      // Highlight
+      ctx.beginPath();
+      ctx.arc(bx - balR * 0.28, by - balR * 0.3, balR * 0.28, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,0.55)';
+      ctx.fill();
+
+      // Knot
+      ctx.beginPath();
+      ctx.arc(bx, by + balR * 0.9, balR * 0.18, 0, Math.PI * 2);
+      ctx.fillStyle = darkenColor(balCols[i], 30);
+      ctx.fill();
+    } else {
+      // Popped: faded X
+      ctx.save();
+      ctx.globalAlpha = 0.18;
+      ctx.strokeStyle = '#ff4444';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(bx - balR * 0.7, by - balR * 0.7);
+      ctx.lineTo(bx + balR * 0.7, by + balR * 0.7);
+      ctx.moveTo(bx + balR * 0.7, by - balR * 0.7);
+      ctx.lineTo(bx - balR * 0.7, by + balR * 0.7);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  // ── Draw robot body (rotated) ──
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(ang * Math.PI / 180);
+
+  const W = CELL * 0.56, H = CELL * 0.44;
+  const ww = CELL * 0.09, wh = CELL * 0.16;
+
+  // Glow
+  ctx.shadowColor = colGlow;
+  ctx.shadowBlur  = 16;
+
+  // Wheels (dark rectangles, top and bottom)
+  ctx.fillStyle = '#111';
+  ctx.fillRect(-W/2 - ww + 2, -wh/2 - H/2 + 4, ww, wh);
+  ctx.fillRect( W/2 - 2,      -wh/2 - H/2 + 4, ww, wh);
+  ctx.fillRect(-W/2 - ww + 2,  H/2 - 4 - wh/2, ww, wh);
+  ctx.fillRect( W/2 - 2,       H/2 - 4 - wh/2, ww, wh);
+
+  ctx.shadowBlur = 0;
+
+  // Body
+  rrect(ctx, -W/2, -H/2, W, H, 6);
+  const bodyGrd = ctx.createLinearGradient(-W/2, -H/2, W/2, H/2);
+  bodyGrd.addColorStop(0, lightenColor(col, 10));
+  bodyGrd.addColorStop(1, col2);
+  ctx.fillStyle = bodyGrd;
+  ctx.fill();
+
+  // Front bumper (right side = front at 0°, this side faces direction after rotation)
+  ctx.fillStyle = lightenColor(col, 30);
+  rrect(ctx, W/2 - CELL*0.09, -H/2 + 2, CELL*0.10, H - 4, [0,4,4,0]);
+  ctx.fill();
+
+  // Eyes (orange LEDs on front)
+  const ey1 = -H * 0.22;
+  const ey2 =  H * 0.22;
+  [ey1, ey2].forEach(ey => {
+    ctx.beginPath();
+    ctx.arc(W/2 - CELL*0.1, ey, CELL*0.075, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255,140,0,0.3)';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(W/2 - CELL*0.1, ey, CELL*0.045, 0, Math.PI*2);
+    ctx.fillStyle = '#ff8800';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(W/2 - CELL*0.12, ey - CELL*0.02, CELL*0.018, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.fill();
+  });
+
+  // Tiny screen/PCB
+  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+  ctx.fillRect(-W/2 + CELL*0.06, -H/2 + CELL*0.06, W*0.45, H - CELL*0.12);
+
+  // Direction arrow
+  ctx.fillStyle = 'rgba(255,255,255,0.15)';
+  ctx.beginPath();
+  ctx.moveTo(W/2 + CELL*0.06, 0);
+  ctx.lineTo(W/2 - CELL*0.02, -CELL*0.08);
+  ctx.lineTo(W/2 - CELL*0.02,  CELL*0.08);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawEffects() {
+  S.effects.forEach(e => {
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, e.alpha);
+    ctx.font = `${e.big ? 'bold ' : ''}${e.big ? Math.round(CELL*0.26) : Math.round(CELL*0.22)}px 'Fredoka One', cursive`;
+    ctx.fillStyle = e.color;
+    ctx.shadowColor = e.color;
+    ctx.shadowBlur  = 8;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(e.text, e.x, e.y);
+    ctx.restore();
+  });
+}
+
+// ── Drawing helpers ───────────────────────────────────────────────────────
+function rrect(ctx, x, y, w, h, r) {
+  if (typeof r === 'number') r = [r,r,r,r];
+  const [tl,tr,br,bl] = r;
+  ctx.beginPath();
+  ctx.moveTo(x+tl, y);
+  ctx.lineTo(x+w-tr, y);         ctx.quadraticCurveTo(x+w, y,   x+w,   y+tr);
+  ctx.lineTo(x+w, y+h-br);       ctx.quadraticCurveTo(x+w, y+h, x+w-br, y+h);
+  ctx.lineTo(x+bl, y+h);         ctx.quadraticCurveTo(x,   y+h, x,      y+h-bl);
+  ctx.lineTo(x, y+tl);           ctx.quadraticCurveTo(x,   y,   x+tl,   y);
+  ctx.closePath();
+}
+
+function lightenColor(hex, pct) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return `rgb(${Math.min(255,r+pct)},${Math.min(255,g+pct)},${Math.min(255,b+pct)})`;
+}
+
+function darkenColor(hex, pct) {
+  if (hex.startsWith('#')) {
+    const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+    return `rgb(${Math.max(0,r-pct)},${Math.max(0,g-pct)},${Math.max(0,b-pct)})`;
+  }
+  return hex;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CONFETTI
+// ═══════════════════════════════════════════════════════════════════════════
+function launchConfetti() {
+  const wrap = document.getElementById('cf');
+  const COLS = ['#00d4ff','#ff4dff','#ffdd00','#00ff88','#ff6644','#44ffcc'];
+  for (let i = 0; i < 70; i++) {
+    const el = document.createElement('div');
+    el.className = 'cf-p';
+    el.style.left              = Math.random() * 100 + 'vw';
+    el.style.width             = (7 + Math.random() * 9) + 'px';
+    el.style.height            = (9 + Math.random() * 12) + 'px';
+    el.style.background        = COLS[Math.floor(Math.random() * COLS.length)];
+    el.style.borderRadius      = Math.random() > 0.5 ? '50%' : '3px';
+    el.style.animationDuration = (1.6 + Math.random() * 2.2) + 's';
+    el.style.animationDelay    = (Math.random() * 0.5) + 's';
+    wrap.appendChild(el);
+    el.addEventListener('animationend', () => el.remove());
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RESPONSIVE RESIZE
+// ═══════════════════════════════════════════════════════════════════════════
+let resizeT;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeT);
+  resizeT = setTimeout(() => {
+    if (S.phase !== 'start' && S.phase !== 'gameover') {
+      setupCanvas();
+      syncVisualImmediate();
+    }
+  }, 80);
+});
+</script>
+</body>
+</html>
